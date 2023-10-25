@@ -419,6 +419,21 @@ select b_rank from
 where a.stunum=b.b_num
 );
 
+-- 1. total 기준 등수지정후 출력 (b로 지정 / 임시테이블 b)
+select stunum, rank() over (order by total desc) from stuscore;
+
+-- 2. 별칭 지정 (임시테이블b의 stunum : b_num , 임시테이블b의 rank : b_rank)  
+select stunum b_num, rank() over (order by total desc) as b_rank from stuscore;
+
+-- 3. 
+update stuscore a     --테이블 stuscore 업데이트
+set rank =              -- rank 컬럼 지정 (아래 지정된 b_rank를 rank로 복사)
+(select b_rank from    
+(select stunum b_num, rank() over (order by total desc) as b_rank from stuscore) b
+where a.stunum=b.b_num  -- stunum과 b_num일치
+);
+
+
 commit;
 
 create sequence emp_seq
